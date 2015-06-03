@@ -74,3 +74,9 @@ gem "mocha", :require => false
 
 # generate fake data w/faker: http://rubydoc.info/github/stympy/faker/master/frames
 gem "faker"
+
+# Use Twilio
+gem "twilio-ruby"
+
+# Use Wufoo
+gem "wuparty"
