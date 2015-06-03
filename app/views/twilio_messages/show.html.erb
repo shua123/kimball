@@ -1,0 +1,89 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Message sid:</strong>
+  <%= @twilio_message.message_sid %>
+</p>
+
+<p>
+  <strong>Date created:</strong>
+  <%= @twilio_message.date_created %>
+</p>
+
+<p>
+  <strong>Date updated:</strong>
+  <%= @twilio_message.date_updated %>
+</p>
+
+<p>
+  <strong>Date sent:</strong>
+  <%= @twilio_message.date_sent %>
+</p>
+
+<p>
+  <strong>Account sid:</strong>
+  <%= @twilio_message.account_sid %>
+</p>
+
+<p>
+  <strong>From:</strong>
+  <%= @twilio_message.from %>
+</p>
+
+<p>
+  <strong>To:</strong>
+  <%= @twilio_message.to %>
+</p>
+
+<p>
+  <strong>Body:</strong>
+  <%= @twilio_message.body %>
+</p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @twilio_message.status %>
+</p>
+
+<p>
+  <strong>Error code:</strong>
+  <%= @twilio_message.error_code %>
+</p>
+
+<p>
+  <strong>Error message:</strong>
+  <%= @twilio_message.error_message %>
+</p>
+
+<p>
+  <strong>Direction:</strong>
+  <%= @twilio_message.direction %>
+</p>
+
+<p>
+  <strong>From city:</strong>
+  <%= @twilio_message.from_city %>
+</p>
+
+<p>
+  <strong>From state:</strong>
+  <%= @twilio_message.from_state %>
+</p>
+
+<p>
+  <strong>From zip:</strong>
+  <%= @twilio_message.from_zip %>
+</p>
+
+<p>
+  <strong>Wufoo formid:</strong>
+  <%= @twilio_message.wufoo_formid %>
+</p>
+
+<p>
+  <strong>Conversation count:</strong>
+  <%= @twilio_message.conversation_count %>
+</p>
+
+<%= link_to 'Edit', edit_twilio_message_path(@twilio_message) %> |
+<%= link_to 'Back', twilio_messages_path %>

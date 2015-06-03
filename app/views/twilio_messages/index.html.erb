@@ -1,0 +1,59 @@
+<h1>Listing twilio_messages</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Message sid</th>
+      <th>Date created</th>
+      <th>Date updated</th>
+      <th>Date sent</th>
+      <th>Account sid</th>
+      <th>From</th>
+      <th>To</th>
+      <th>Body</th>
+      <th>Status</th>
+      <th>Error code</th>
+      <th>Error message</th>
+      <th>Direction</th>
+      <th>From city</th>
+      <th>From state</th>
+      <th>From zip</th>
+      <th>Wufoo formid</th>
+      <th>Conversation count</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @twilio_messages.each do |twilio_message| %>
+      <tr>
+        <td><%= twilio_message.message_sid %></td>
+        <td><%= twilio_message.date_created %></td>
+        <td><%= twilio_message.date_updated %></td>
+        <td><%= twilio_message.date_sent %></td>
+        <td><%= twilio_message.account_sid %></td>
+        <td><%= twilio_message.from %></td>
+        <td><%= twilio_message.to %></td>
+        <td><%= twilio_message.body %></td>
+        <td><%= twilio_message.status %></td>
+        <td><%= twilio_message.error_code %></td>
+        <td><%= twilio_message.error_message %></td>
+        <td><%= twilio_message.direction %></td>
+        <td><%= twilio_message.from_city %></td>
+        <td><%= twilio_message.from_state %></td>
+        <td><%= twilio_message.from_zip %></td>
+        <td><%= twilio_message.wufoo_formid %></td>
+        <td><%= twilio_message.conversation_count %></td>
+        <td><%= link_to 'Show', twilio_message %></td>
+        <td><%= link_to 'Edit', edit_twilio_message_path(twilio_message) %></td>
+        <td><%= link_to 'Destroy', twilio_message, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Twilio message', new_twilio_message_path %>

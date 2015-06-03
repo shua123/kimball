@@ -1,0 +1,39 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  message_sid: MyString
+  date_created: 2015-06-03 16:14:27
+  date_updated: 2015-06-03 16:14:27
+  date_sent: 2015-06-03 16:14:27
+  account_sid: MyString
+  from: MyString
+  to: MyString
+  body: MyString
+  status: MyString
+  error_code: MyString
+  error_message: MyString
+  direction: MyString
+  from_city: MyString
+  from_state: MyString
+  from_zip: MyString
+  wufoo_formid: MyString
+  conversation_count: 1
+
+two:
+  message_sid: MyString
+  date_created: 2015-06-03 16:14:27
+  date_updated: 2015-06-03 16:14:27
+  date_sent: 2015-06-03 16:14:27
+  account_sid: MyString
+  from: MyString
+  to: MyString
+  body: MyString
+  status: MyString
+  error_code: MyString
+  error_message: MyString
+  direction: MyString
+  from_city: MyString
+  from_state: MyString
+  from_zip: MyString
+  wufoo_formid: MyString
+  conversation_count: 1

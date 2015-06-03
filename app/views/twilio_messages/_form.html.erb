@@ -1,0 +1,85 @@
+<%= form_for(@twilio_message) do |f| %>
+  <% if @twilio_message.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@twilio_message.errors.count, "error") %> prohibited this twilio_message from being saved:</h2>
+
+      <ul>
+      <% @twilio_message.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :message_sid %><br>
+    <%= f.text_field :message_sid %>
+  </div>
+  <div class="field">
+    <%= f.label :date_created %><br>
+    <%= f.datetime_select :date_created %>
+  </div>
+  <div class="field">
+    <%= f.label :date_updated %><br>
+    <%= f.datetime_select :date_updated %>
+  </div>
+  <div class="field">
+    <%= f.label :date_sent %><br>
+    <%= f.datetime_select :date_sent %>
+  </div>
+  <div class="field">
+    <%= f.label :account_sid %><br>
+    <%= f.text_field :account_sid %>
+  </div>
+  <div class="field">
+    <%= f.label :from %><br>
+    <%= f.text_field :from %>
+  </div>
+  <div class="field">
+    <%= f.label :to %><br>
+    <%= f.text_field :to %>
+  </div>
+  <div class="field">
+    <%= f.label :body %><br>
+    <%= f.text_field :body %>
+  </div>
+  <div class="field">
+    <%= f.label :status %><br>
+    <%= f.text_field :status %>
+  </div>
+  <div class="field">
+    <%= f.label :error_code %><br>
+    <%= f.text_field :error_code %>
+  </div>
+  <div class="field">
+    <%= f.label :error_message %><br>
+    <%= f.text_field :error_message %>
+  </div>
+  <div class="field">
+    <%= f.label :direction %><br>
+    <%= f.text_field :direction %>
+  </div>
+  <div class="field">
+    <%= f.label :from_city %><br>
+    <%= f.text_field :from_city %>
+  </div>
+  <div class="field">
+    <%= f.label :from_state %><br>
+    <%= f.text_field :from_state %>
+  </div>
+  <div class="field">
+    <%= f.label :from_zip %><br>
+    <%= f.text_field :from_zip %>
+  </div>
+  <div class="field">
+    <%= f.label :wufoo_formid %><br>
+    <%= f.text_field :wufoo_formid %>
+  </div>
+  <div class="field">
+    <%= f.label :conversation_count %><br>
+    <%= f.number_field :conversation_count %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
