@@ -7,6 +7,7 @@ require 'shoulda/matchers'
 require 'database_cleaner'
 require 'devise'
 require 'support/controller_macros'
+require 'support/helpers'
 
 ActiveRecord::Migration.maintain_test_schema!
 
@@ -18,7 +19,8 @@ Shoulda::Matchers.configure do |config|
 end
 
 RSpec.configure do |config|
-  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
+  config.include Helpers
+
   config.fixture_path = "#{::Rails.root}/test/fixtures"
 
   config.include Devise::TestHelpers, :type => :controller

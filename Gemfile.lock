@@ -404,6 +404,8 @@ GEM
       rack
       raindrops (~> 0.7)
     uniform_notifier (1.9.0)
+    validates_overlap (0.6.0)
+      rails (>= 3.0.0)
     validates_zipcode (0.0.8)
       activemodel (>= 3.2.0)
     warden (1.2.4)
@@ -459,6 +461,7 @@ DEPENDENCIES
   jquery-rails
   jquery-validation-rails
   maskedinput-rails
+  mail (= 2.6.3)
   memory_profiler
   memory_test_fix
   mocha
@@ -487,6 +490,7 @@ DEPENDENCIES
   twitter-bootstrap-rails (~> 2.2.0)
   uglifier (>= 1.0.3)
   unicorn
+  validates_overlap
   validates_zipcode
   web-console
   will_paginate
