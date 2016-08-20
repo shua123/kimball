@@ -90,6 +90,13 @@ ActiveRecord::Schema.define(version: 20160815170712) do
   add_index "gift_cards", ["giftable_type", "giftable_id"], name: "index_gift_cards_on_giftable_type_and_giftable_id", using: :btree
   add_index "gift_cards", ["reason"], name: "gift_reason_index", using: :btree
 
+  create_table "invitation_invitees_join_table", force: :cascade do |t|
+    t.integer  "person_id",           limit: 4
+    t.integer  "event_invitation_id", limit: 4
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
   create_table "mailchimp_exports", force: :cascade do |t|
     t.string   "name",       limit: 255
     t.text     "body",       limit: 65535
@@ -240,8 +247,19 @@ ActiveRecord::Schema.define(version: 20160815170712) do
     t.boolean  "approved",                           default: false, null: false
   end
 
+  create_table "v2_event_invitations", force: :cascade do |t|
+    t.integer "v2_event_id",     limit: 4
+    t.string  "email_addresses", limit: 255
+    t.string  "description",     limit: 255
+    t.string  "slot_length",     limit: 255
+    t.string  "date",            limit: 255
+    t.string  "start_time",      limit: 255
+    t.string  "end_time",        limit: 255
+  end
+
   create_table "v2_events", force: :cascade do |t|
-    t.integer "user_id", limit: 4
+    t.integer "user_id",     limit: 4
+    t.string  "description", limit: 255
   end
 
   create_table "v2_reservations", force: :cascade do |t|

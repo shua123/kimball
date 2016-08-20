@@ -30,4 +30,10 @@
 .vagrant
 
 Procfile
+<<<<<<< HEAD
 .DS_Store
+=======
+
+# weird mac files.
+.DS_STORE
+>>>>>>> 5864fb37740abfb8d4835d23702746d62b492ed3
