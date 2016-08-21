@@ -248,6 +248,7 @@ ActiveRecord::Schema.define(version: 20160815170712) do
     t.boolean  "approved",                           default: false, null: false
     t.string   "name",                   limit: 255
     t.string   "token",                  limit: 255
+    t.string   "phone_number",           limit: 255
   end
 
   create_table "v2_event_invitations", force: :cascade do |t|
@@ -262,6 +263,7 @@ ActiveRecord::Schema.define(version: 20160815170712) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "user_id",         limit: 4
+    t.string   "title",           limit: 255
   end
 
   create_table "v2_events", force: :cascade do |t|
@@ -279,6 +281,7 @@ ActiveRecord::Schema.define(version: 20160815170712) do
     t.integer  "user_id",             limit: 4
     t.integer  "event_id",            limit: 4
     t.integer  "event_invitation_id", limit: 4
+    t.string   "aasm_state",          limit: 255
   end
 
   create_table "v2_time_slots", force: :cascade do |t|

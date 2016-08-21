@@ -67,7 +67,7 @@ class Person < ActiveRecord::Base
   has_many :v2_reservations, class_name: '::V2::Reservation'
   has_many :v2_events, through: :event_invitations, foreign_key: 'v2_event_id', source: :event
 
-  has_secure_token
+  has_secure_token :token
 
   after_update  :sendToMailChimp
   after_create  :sendToMailChimp
@@ -315,7 +315,24 @@ class Person < ActiveRecord::Base
     [address_1, address_2, city, state, postal_code].reject(&:blank?).join(', ')
   end
 
+  def self.send_all_reminders
+    # this is where reservation_reminders
+    # called by whenever in /config/schedule.rb
+    Person.all.find_each(&:send_reservation_reminder)
+  end
 
+  def send_reservation_reminder
+    return if v2_reservations.for_today.size == 0
+    case preferred_contact_method.upcase
+    when 'SMS'
+      ::EventInvitationSms.new(to: self, reservations: v2_reservations.for_today).delay.send
+    when 'EMAIL'
+      ReservationNotifier.remind(
+        reservations:  v2_reservations.for_today,
+        person: email_address
+      ).deliver_later
+    end
+  end
 
 end
 # rubocop:enable ClassLength

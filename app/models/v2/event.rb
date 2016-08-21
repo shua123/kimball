@@ -30,11 +30,15 @@ class V2::Event < ActiveRecord::Base
   delegate :slot_length, to: :event_invitation
   delegate :duration,    to: :event_invitation
   delegate :buffer,      to: :event_invitation
+  delegate :title,       to: :event_invitation
 
   after_save :build_slots, if: :event_invitation
 
   def available_time_slots(person = nil)
-    available_slots = time_slots.find_all do |slot|
+    # if a person has a reservation there are no slots for them.
+    return [] if !person.nil? && person.v2_reservations.find_by(event_id: id)
+
+    available_slots = time_slots.includes(:reservation).find_all do |slot|
       !slot.reservation.present?
     end
 
@@ -47,7 +51,7 @@ class V2::Event < ActiveRecord::Base
 
     def filter_reservations(arr_obj, slots)
       arr_obj.each do |obj|
-        obj.reload
+        # obj.reload
         slots = filter_obj_reservations(obj, slots)
       end
       slots
