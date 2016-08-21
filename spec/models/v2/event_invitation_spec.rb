@@ -10,6 +10,7 @@
 #  date            :string(255)
 #  start_time      :string(255)
 #  end_time        :string(255)
+#  buffer          :integer          default(0), not null
 #
 
 require 'rails_helper'
@@ -31,7 +32,8 @@ describe V2::EventInvitation do
         slot_length: '45 mins',
         date: '03/20/2016',
         start_time: '15:00',
-        end_time: '16:30'
+        end_time: '16:30',
+        created_by: 1
       }
     end
 
@@ -49,6 +51,11 @@ describe V2::EventInvitation do
       it 'finds the invitees and associates the to the event' do
         subject.save
         expect(subject.invitees.collect(&:id).sort).to eql people.collect(&:id).sort
+      end
+
+      it 'associates event to its creator' do
+        subject.save
+        expect(subject.event.user_id).to eq(1)
       end
     end
 

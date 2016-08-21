@@ -256,6 +256,7 @@ ActiveRecord::Schema.define(version: 20160815170712) do
     t.string  "date",            limit: 255
     t.string  "start_time",      limit: 255
     t.string  "end_time",        limit: 255
+    t.integer "buffer",          limit: 4,   default: 0, null: false
   end
 
   create_table "v2_events", force: :cascade do |t|

@@ -5,6 +5,9 @@ feature 'Person responds to interview invitation over email' do
   before do
     clear_emails
     @event = FactoryGirl.create(:event)
+    @user  = FactoryGirl.create(:user)
+    @event.user = @user
+    @event.save!
     @research_subject = FactoryGirl.create(:person)
   end
 
@@ -23,7 +26,7 @@ feature 'Person responds to interview invitation over email' do
 
     expect(page).to have_content "An interview has been booked for #{selected_time}"
 
-    admin_email = 'admin@what.host.should.we.have.here.com'
+    admin_email = ENV['MAILER_SENDER']
     research_subject_email = @research_subject.email_address
 
     [admin_email, research_subject_email].each do |email_address|

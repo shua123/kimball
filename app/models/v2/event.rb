@@ -11,6 +11,8 @@ class V2::Event < ActiveRecord::Base
   self.table_name = 'v2_events'
 
   has_many :time_slots, class_name: '::V2::TimeSlot'
+  has_many :people, through: :time_slots
+  belongs_to :user
 
   validates :description, presence: true
   validates :time_slots, presence: true
