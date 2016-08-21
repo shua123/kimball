@@ -122,6 +122,7 @@ gem 'validates_zipcode'
 # in place editing
 gem 'best_in_place', '~> 3.0.1'
 
+#validation for new persons on the public page.
 gem 'jquery-validation-rails'
 
 # storing money with money-rails
@@ -129,6 +130,10 @@ gem 'money-rails'
 
 # masked inputs
 gem 'maskedinput-rails'
+
+#for automatically populating tags
+gem 'twitter-typeahead-rails'
+
 
 group :testing do
   # mock tests w/mocha
