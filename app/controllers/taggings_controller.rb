@@ -18,8 +18,12 @@ class TaggingsController < ApplicationController
   #
   def create
     @tag = Tag.find_or_initialize_by(name: params[:tagging].delete(:name))
+
     @tag.created_by ||= current_user.id
-    @tagging = Tagging.new(taggable_type: params[:tagging][:taggable_type], taggable_id: params[:tagging][:taggable_id], tag: @tag)
+
+    @tagging = Tagging.new(taggable_type: params[:tagging][:taggable_type],
+                           taggable_id: params[:tagging][:taggable_id],
+                           tag: @tag) if @tag.name != ''
 
     if @tagging.with_user(current_user).save
       respond_to do |format|
@@ -27,7 +31,7 @@ class TaggingsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.js { render text: "alert('Oh no! You can only tag an item with a given tag once.')" }
+        format.js { render text: "console.log('tag save error')" }
       end
     end
   end
@@ -48,9 +52,12 @@ class TaggingsController < ApplicationController
   end
 
   def search
-    @tags = Tag.where('name like ?', "#{params[:q]}%").
+    @tags = Tag.where('name like ?', "%#{params[:q]}%").
             order(taggings_count: :desc)
-    render json: @tags
+
+    # the methods=> :value is needed for tokenfield.
+    # https://github.com/sliptree/bootstrap-tokenfield/issues/189
+    render json: @tags.to_json(methods: :value)
   end
 
 end

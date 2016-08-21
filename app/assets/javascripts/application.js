@@ -11,19 +11,20 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require jquery
-//= require best_in_place
 //= require jquery_ujs
+//= require best_in_place
 //= require twitter/bootstrap
 //= require twitter/typeahead.min
 //= require turbolinks
 //= require holder
-//= require datepicker/bootstrap-datepicker.min.js
+//= require datepicker/bootstrap-datepicker.min
+//= require tokenfield/bootstrap-tokenfield.min
 //= require jquery.validate
 //= require jquery.validate.additional-methods
 //= require_tree .
 //= require maskedinput
 
-$(document).ready(function() {
+$(document).on('ready page:load',function() {
   /* Activating Best In Place */
   jQuery(".best_in_place").best_in_place();
 });

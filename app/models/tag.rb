@@ -21,6 +21,12 @@ class Tag < ActiveRecord::Base
     taggings_count
   end
 
+  # needed for tokenfield.
+  # https://github.com/sliptree/bootstrap-tokenfield/issues/189
+  def value
+    name
+  end
+
   def self.most_popular(limit = 10)
     Tag.all.order(taggings_count: :desc).limit(limit)
   end

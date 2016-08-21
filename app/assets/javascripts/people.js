@@ -3,18 +3,18 @@ $(document).on('ready page:load', function () {
   $("#gift_card_expiration_date").mask("99/99",{placeholder:"MM/YY"});
 
   // initialize bloodhound engine
-  var searchSelector = 'input#typeahead';
+  var searchSelector = 'input#tag-typeahead';
 
 
   //filters out tags that are already in the list
   var filter = function(suggestions) {
     var current_tags = $('#tag-list li').map(function(index,el){
-      return el.children[0].text
-    })
+      return el.children[0].text;
+    });
     return $.grep(suggestions, function(suggestion) {
         return $.inArray(suggestion.name,current_tags) === -1;
     });
-  }
+  };
 
   var bloodhound = new Bloodhound({
     datumTokenizer: function (d) {
@@ -27,7 +27,8 @@ $(document).on('ready page:load', function () {
       url:'/taggings/search?q=%QUERY',
       wildcard: '%QUERY',
       limit: 20,
-      filter: filter
+      filter: filter,
+      cache: false
     }
   });
   bloodhound.initialize();
@@ -38,6 +39,12 @@ $(document).on('ready page:load', function () {
     name: 'Tags',
     displayKey: 'name',
     source: bloodhound.ttAdapter()
-  })
+  });
+
+  //submits the tag once selected from the typeahead
+  $(searchSelector).on('typeahead:selected', function(obj, datum){ //datum
+    $(searchSelector).typeahead('val',datum.name);
+    $('#tag-typeahead').submit();
+  });
 
 });
