@@ -1,12 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe CalendarController, type: :controller do
-  let(:user) { FactoryGirl.create(:user) }
   let!(:event_invitation) { FactoryGirl.create(:event_invitation) }
+  let!(:user) { event_invitation.user }
+  let!(:event) { event_invitation.event }
   let!(:person) { event_invitation.invitees.sample }
   let!(:time_slot) { event_invitation.event.time_slots.sample }
-  let!(:reservation) { V2::Reservation.create(person: person, time_slot: time_slot) }
-
+  let!(:reservation) {
+    V2::Reservation.create(person: person,
+    time_slot: time_slot,
+    user: user,
+    event: event,
+    event_invitation: event_invitation)
+  }
 
   describe 'admin user logged in' do
     before(:each) do
@@ -41,6 +47,7 @@ RSpec.describe CalendarController, type: :controller do
 
     it 'provides the ical feed to good user tokens' do
       # the user created above doesn't have a reservation.
+      reservation.reload
       get :feed, token: reservation.user.token
       expect(response.status).to eq(200)
       expect(response.body).to have_text(reservation.description)

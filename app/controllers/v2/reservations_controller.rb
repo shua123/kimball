@@ -2,19 +2,28 @@
 #
 # Table name: v2_reservations
 #
-#  id           :integer          not null, primary key
-#  time_slot_id :integer
-#  person_id    :integer
+#  id                  :integer          not null, primary key
+#  time_slot_id        :integer
+#  person_id           :integer
+#  created_at          :datetime
+#  updated_at          :datetime
+#  user_id             :integer
+#  event_id            :integer
+#  event_invitation_id :integer
 #
-# TODO: status enum: tbd, reminded, cancelled, attended.
 
 class V2::ReservationsController < ApplicationController
   skip_before_action :authenticate_user!
 
   def new
-    event = V2::Event.find_by(id: event_params[:event_id])
     @person = Person.find_by(token: person_params[:token])
-    @available_time_slots = event.available_time_slots(@person)
+
+    redirect_to root_url unless @person
+
+    @event_invitation = V2::EventInvitation.find_by(v2_event_id: event_params[:event_id])
+    @user = @event_invitation.user
+    @event = @event_invitation.event
+    @available_time_slots = @event.available_time_slots(@person)
     @reservation = V2::Reservation.new(time_slot: V2::TimeSlot.new)
   end
 
@@ -49,37 +58,16 @@ class V2::ReservationsController < ApplicationController
     end
 
     def reservation_params
-      params.require(:v2_reservation).permit(:person_id, :time_slot_id)
+      params.require(:v2_reservation).permit(
+        :person_id,
+        :time_slot_id,
+        :event_id,
+        :event_invitation_id,
+        :user_id)
     end
 
     def person_params
       params.permit(:email_address, :person_id, :token)
-    end
-
-    def filter_reservations(arr_obj, slots)
-      arr_obj.each do |obj|
-        slots = filter_obj_reservations(obj, slots)
-      end
-      slots
-    end
-
-    def filter_obj_reservations(obj, slots)
-      unless slots.empty?
-        res = obj.v2_reservations.joins(:time_slot).
-              where('v2_time_slots.start_time >=?',
-                DateTime.now.in_time_zone)
-
-        # TODO: refactor
-        # filtering out slots that overlap. Tricky.
-        slots = slots.select do |s|
-          res.any? { |r| not_overlaps(r, s) }
-        end unless res.empty?
-      end
-      slots
-    end
-
-    def not_overlap?(one, other)
-      !((one.start_time - other.end_time) * (other.start_time - one.end_time) >= 0)
     end
 
 end

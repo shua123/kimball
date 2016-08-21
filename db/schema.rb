@@ -261,6 +261,7 @@ ActiveRecord::Schema.define(version: 20160815170712) do
     t.integer  "buffer",          limit: 4,   default: 0, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "user_id",         limit: 4
   end
 
   create_table "v2_events", force: :cascade do |t|
@@ -271,10 +272,13 @@ ActiveRecord::Schema.define(version: 20160815170712) do
   end
 
   create_table "v2_reservations", force: :cascade do |t|
-    t.integer  "time_slot_id", limit: 4
-    t.integer  "person_id",    limit: 4
+    t.integer  "time_slot_id",        limit: 4
+    t.integer  "person_id",           limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "user_id",             limit: 4
+    t.integer  "event_id",            limit: 4
+    t.integer  "event_invitation_id", limit: 4
   end
 
   create_table "v2_time_slots", force: :cascade do |t|
