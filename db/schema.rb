@@ -144,6 +144,10 @@ ActiveRecord::Schema.define(version: 20160815170712) do
     t.string   "verified",                         limit: 255
     t.string   "preferred_contact_method",         limit: 255
     t.string   "token",                            limit: 255
+    t.boolean  "active",                                       default: true
+    t.datetime "deactivated_at"
+    t.string   "deactivated_method",               limit: 255
+    t.string   "neighborhood",                     limit: 255
   end
 
   create_table "programs", force: :cascade do |t|

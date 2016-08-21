@@ -9,9 +9,7 @@ module Calendarable
     e.dtstart       = Icalendar::Values::DateTime.new(start_datetime)
     e.dtend         = Icalendar::Values::DateTime.new(end_datetime)
     e.description   = cal_description
-    if defined? person
-      e.url  = "https://#{ENV['PRODUCTION_SERVER']}/people/#{person.id}"
-    end
+    e.url           = generate_url
     e.uid           = generate_ical_id
     add_alarm(e)
   end
@@ -28,15 +26,23 @@ module Calendarable
   end
 
   def to_time_and_weekday
-    "#{start_datetime.strftime('%H:%M')} - #{end_datetime.strftime('%H:%M')} #{start_datetime.strftime('%A %d')}"
+    "#{start_datetime.strftime('%l:%M %p').lstrip} - #{end_datetime.strftime('%l:%M %p').lstrip} #{start_datetime.strftime('%a %d')}"
   end
 
   def to_weekday_and_time
-    "#{start_datetime.strftime('%A %d')} #{start_datetime.strftime('%H:%M')} - #{end_datetime.strftime('%H:%M')}"
+    "#{start_datetime.strftime('%a %d')} #{start_datetime.strftime('%l:%M %p').lstrip} - #{end_datetime.strftime('%l:%M %p').lstrip}"
   end
 
-  def start_time_human
-    "#{start_datetime.strftime('%R %p, %a %b')} #{start_datetime.strftime('%d').ordinalize}"
+  def start_datetime_human
+    "#{start_datetime.strftime('%l:%M%p, %a %b').lstrip} #{start_datetime.strftime('%d').to_i.ordinalize}"
+  end
+
+  def slot_time_human
+    "#{start_datetime.strftime('%l:%M%p').lstrip}-#{end_datetime.strftime('%l:%M%p, %a %b').lstrip} #{start_datetime.strftime('%d').to_i.ordinalize}"
+  end
+
+  def bot_duration
+    "from #{start_datetime.strftime('%l:%M%p').lstrip} to #{end_datetime.strftime('%l:%M%p').lstrip}"
   end
 
   private
@@ -48,6 +54,14 @@ module Calendarable
         return res
       else
         description
+      end
+    end
+
+    def generate_url
+      if defined? person
+        "https://#{ENV['PRODUCTION_SERVER']}/calendar/?token=#{person.token}&#{self.class.to_s.demodulize}_id=#{id}"
+      else
+        "https://#{ENV['PRODUCTION_SERVER']}/calendar/?#{self.class.to_s.demodulize}_id=#{id}"
       end
     end
 

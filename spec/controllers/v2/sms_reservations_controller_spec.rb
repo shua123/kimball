@@ -35,7 +35,7 @@ describe V2::SmsReservationsController do
       context 'with existing time slot option' do
         let(:selected_number) { 'a' }
         let(:body) { "#{event.id}#{selected_number}" }
-        let(:selected_time) { event.time_slots.first.to_weekday_and_time }
+        let(:selected_time) { event.time_slots.first.start_datetime_human }
 
         it 'reserves the time slot for this person' do
           subject
@@ -45,7 +45,8 @@ describe V2::SmsReservationsController do
         it 'sends out a confirmation sms for this person' do
           subject
           open_last_text_message_for research_subject.phone_number
-          expected = "A #{event_invitation.duration / 60} minute interview has been booked for #{selected_time}, with #{event.user.name}. \nTheir number is #{event.user.phone_number}\n. You'll get a reminder that morning."
+
+          expected = "A #{event_invitation.duration / 60} minute interview has been booked for:\n#{selected_time}\nWith: #{event.user.name}, \nTel: #{event.user.phone_number}\n.You'll get a reminder that morning."
           expect(current_text_message.body).to eql expected
         end
 
@@ -99,7 +100,7 @@ describe V2::SmsReservationsController do
                              time_slot: time_slot,
                              person: research_subject_2)
         }
-        let!(:selected_time) { time_slot.to_weekday_and_time }
+        let!(:selected_time) { time_slot.start_datetime_human }
 
         it 'does not create a new reservation' do
           reservation.save
@@ -117,8 +118,8 @@ describe V2::SmsReservationsController do
           message_body = current_text_message.body
           expect(message_body).to have_text(event.description)
 
-          expected = event.time_slots.last.to_time_and_weekday
-          expect(message_body).to have_text(expected)
+          expected_times = event.time_slots.last.slot_time_human
+          expect(message_body).to have_text(expected_times)
 
           person_token = research_subject.token
           expect(message_body).to have_text(person_token)

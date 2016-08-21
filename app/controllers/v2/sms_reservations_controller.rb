@@ -1,5 +1,4 @@
-# FIXME: Refactor and re-enable cop
-# rubocop:disable ClassLength
+# FIXME: Refactor
 class V2::SmsReservationsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:create]
   skip_before_action :authenticate_user!
@@ -9,38 +8,45 @@ class V2::SmsReservationsController < ApplicationController
     save_twilio_message # see receive_text_controller
 
     send_error_notification && return unless person
+
+    # should do sms verification here if unverified
+
     # FIXME: this needs a refactor badly.
-    if letters_and_numbers_only? # they are trying to accept!
-      reservation = V2::Reservation.new(generate_reservation_params)
-      if reservation.save
-        send_new_reservation_notifications(person, reservation)
-      else
-        resend_available_slots(person, event)
-      end
-    elsif declined? # currently not used.
-      send_decline_notifications(person, event)
+    if remove?
+      # do the remove people thing.
+      person.deactivate!
+      ::RemoveSms.new(to: person).send
     elsif confirm? # confirmation for the days reservations
-      if person.v2_reservations.for_today.size > 0
-        person.v2_reservations.for_today.each(&:confirm!)
+      if person.v2_reservations.for_today_and_tomorrow.size > 0
+        person.v2_reservations.for_today_and_tomorrow.each(&:confirm!)
       else
         ::ReservationReminderSms.new(to: person, reservations: person.v2_reservations.for_today).send
       end
     elsif cancel?
-      if person.v2_reservations.for_today.size > 0
-        person.v2_reservations.for_today.each(&:cancel!)
+      if person.v2_reservations.for_today_and_tomorrow.size > 0
+        person.v2_reservations.for_today_and_tomorrow.each(&:cancel!)
       else
         ::ReservationReminderSms.new(to: person, reservations: person.v2_reservations.for_today).send
       end
     elsif change?
-      if person.v2_reservations.for_today.size > 0
-        person.v2_reservations.for_today.each(&:reschedule!)
+      if person.v2_reservations.for_today_and_tomorrow.size > 0
+        person.v2_reservations.for_today_and_tomorrow.each(&:reschedule!)
       else
         ::ReservationReminderSms.new(to: person, reservations: person.v2_reservations.for_today).send
       end
     elsif calendar?
       ::ReservationReminderSms.new(to: person, reservations: person.v2_reservations.for_today_and_tomorrow).send
     else
-      send_error_notification && return
+      str_context = Redis.current.get("wit_context:#{person.id}")
+
+      # we don't know what event_id we're talking about here
+      send_error_notification && return if str_context.nil?
+      context = JSON.parse(str_context)
+      puts "in sms_reservation_controller"
+      pp context
+      puts message
+      puts "!!!!!!!!!!!!!!!!!!!!!!!"
+      ::WitClient.run_actions "#{person.id}_#{context['event_id']}", message, context
     end
     render text: 'OK'
   end
@@ -56,39 +62,12 @@ class V2::SmsReservationsController < ApplicationController
       @person ||= Person.find_by(phone_number: sms_params[:From])
     end
 
-    # TODO: need to handle more than 26 slots
-    def selection
-      slot_letter = message.downcase.delete('^a-z')
-      # "a".ord - ("A".ord + 32) == 0
-      # "b".ord - ("A".ord + 32) == 1
-      # (0 + 97).chr == a
-      # (1 + 97).chr == b
-      slot_letter.ord - ('A'.ord + 32)
-    end
-
-    def event
-      event_id = message.delete('^0-9').to_i
-      @event ||= V2::Event.includes(:event_invitation, :user, :time_slots).find_by(id: event_id)
-    end
-
     def event_invitation
       @event_invitation ||= event.event_invitation
     end
 
     def user
       @user ||= event_invitation.user
-    end
-
-    def time_slot
-      @event.time_slots[selection]
-    end
-
-    def generate_reservation_params
-      { user: user,
-        person: person,
-        event: event,
-        event_invitation: event_invitation,
-        time_slot: time_slot }
     end
 
     def send_new_reservation_notifications(person, reservation)
@@ -101,19 +80,15 @@ class V2::SmsReservationsController < ApplicationController
     end
 
     def send_error_notification
-      ::InvalidOptionSms.new(to: sms_params[:From]).send
+      # awkward, yes, but see application_sms to understand why
+      phone_struct = Struct.new(:phone_number).new(sms_params[:From])
+      ::InvalidOptionSms.new(to: phone_struct).send
 
       render text: 'OK'
     end
 
     def resend_available_slots(person, event)
       ::TimeSlotNotAvailableSms.new(to: person, event: event).send
-    end
-
-    def declined?
-      # this is no longer in use. still might be handt though...
-      # up to 10k events.
-      message.downcase =~ /^\d{1,5}-decline?/
     end
 
     def confirm?
@@ -132,10 +107,8 @@ class V2::SmsReservationsController < ApplicationController
       message.downcase.include?('calendar')
     end
 
-    def letters_and_numbers_only?
-      # this is for accepting only. many messages now won't pass.
-      # up to 10k events
-      message.downcase =~ /\b\d{1,5}[a-z]\b/
+    def remove?
+      message.downcase.include?('remove')
     end
 
     def sms_params
@@ -145,17 +118,14 @@ class V2::SmsReservationsController < ApplicationController
     def twilio_params
       res = {}
       params.permit(:From, :To, :Body, :MessageSid, :DateCreated, :DateUpdated, :DateSent, :AccountSid, :WufooFormid, :SmsStatus, :FromZip, :FromCity,
-        :FromState, :ErrorCode, :ErrorMessage).to_unsafe_hash.keys do |k, v|
-        # behold the horror
+        :FromState, :ErrorCode, :ErrorMessage, :Direction, :AccountSid).to_unsafe_hash.keys do |k, v|
+        # behold the horror of translating twilio params to rails attributes
         res[k.gsub!(/(.)([A-Z])/, '\1_\2').downcase] = v
       end
       res
     end
 
     def save_twilio_message
-      tm = TwilioMessage.new(twilio_params)
-      tm.direction = 'twiml-incoming'
-      tm.save
+      TwilioMessage.create(twilio_params)
     end
 end
-# rubocop:enable ClassLength

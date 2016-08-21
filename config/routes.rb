@@ -2,7 +2,9 @@ Logan::Application.routes.draw do
   resources :gift_cards
   resources :mailchimp_updates
   namespace :public do
-    resources :people, only: [:new, :create]
+    resources :people, only: [:new, :create, :deactivate] do
+      get '/deactivate/:token', to:'people#deactivate', as: :deactivate
+    end
   end
 
   namespace :v2 do

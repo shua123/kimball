@@ -37,10 +37,10 @@
 # rubocop:disable ClassLength
 class Person < ActiveRecord::Base
 
-  #scope :signup_card_needed, -> { where (self.no_signup_card)}
-
+  default_scope { where(active: true) } # quick deactivations
   include Searchable
   include ExternalDataMappings
+  include Neighborhoods
 
   phony_normalize :phone_number, default_country_code: 'US'
   phony_normalized_method :phone_number, default_country_code: 'US'
@@ -71,6 +71,7 @@ class Person < ActiveRecord::Base
 
   after_update  :sendToMailChimp
   after_create  :sendToMailChimp
+  after_create  :update_neighborhood
 
   validates :first_name, presence: true
   validates :last_name, presence: true
@@ -331,6 +332,21 @@ class Person < ActiveRecord::Base
         reservations:  v2_reservations.for_today_and_tomorrow.to_a,
         email_address: email_address
       ).deliver_later
+    end
+  end
+
+  def deactivate(method = nil)
+    self.active = false
+    self.deactivated_at = Time.current
+    self.deactivated_method = method if method
+    save!
+  end
+
+  def update_neighborhood
+    n = zip_to_neighborhood(postal_code)
+    unless n.blank?
+      self.neighborhood = n
+      save
     end
   end
 
