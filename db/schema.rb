@@ -246,6 +246,7 @@ ActiveRecord::Schema.define(version: 20160815170712) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "approved",                           default: false, null: false
+    t.string   "name",                   limit: 255
   end
 
   create_table "v2_event_invitations", force: :cascade do |t|

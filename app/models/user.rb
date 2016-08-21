@@ -24,6 +24,10 @@ class User < ActiveRecord::Base
 
   devise :database_authenticatable, :registerable, :recoverable, :rememberable, :trackable, :validatable, stretches: 10
 
+  has_many :v2_events, class_name: '::V2::Event'
+
+  has_many :v2_reservations, through: :v2_events, source: :reservations
+
   def active_for_authentication?
     if super && approved?
       true
@@ -49,6 +53,14 @@ class User < ActiveRecord::Base
   def unapprove!
     update_attributes(approved: false)
     Rails.logger.info("Unapproved user #{email}")
+  end
+
+  def reservations
+    v2_reservations
+  end
+
+  def events
+    v2_events
   end
 
 end
