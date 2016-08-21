@@ -134,6 +134,11 @@ gem 'maskedinput-rails'
 #for automatically populating tags
 gem 'twitter-typeahead-rails'
 
+# make ical events and feeds
+gem 'icalendar'
+
+# calendar view
+gem 'simple_calendar'
 
 group :testing do
   # mock tests w/mocha
@@ -162,7 +167,7 @@ group :development, :test do
   gem 'capybara'
   gem 'capybara-email'
   gem 'pry'
-  gem 'factory_girl_rails'
+  gem 'factory_girl_rails', require: false
   gem 'shoulda-matchers', '~> 3.1.1', require: false
   gem 'database_cleaner'
   gem 'poltergeist'

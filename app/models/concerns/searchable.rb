@@ -20,19 +20,6 @@ module Searchable
           tokenizer: 'uax_url_email',
           filter: ['lowercase'],
           type: 'custom'
-        },
-        phone_number: {
-          tokenizer: 'my_ngram_tokenizer',
-          filter: ['trim'],
-          type: 'custom'
-        }
-      },
-      tokenizer: {
-        my_ngram_tokenizer: {
-          type: 'nGram',
-          min_gram: '8',
-          max_gram: '11',
-          token_chars: ['digit']
         }
       }
     } do
@@ -63,7 +50,7 @@ module Searchable
 
         # comments
         indexes :comments do
-          indexes :content, analyzer: 'snowball'
+          indexes :content, analyzer: :snowball
         end
 
         # events
@@ -73,7 +60,7 @@ module Searchable
 
         # submissions
         # indexes the output of the Submission#indexable_values method
-        indexes :submissions, analyzer: :snowball
+        indexes :submission_values, analyzer: :snowball
 
         # tags
         indexes :tag_values, analyzer: :keyword
@@ -112,7 +99,6 @@ module Searchable
         query do
           boolean do
             params.each do |k, v|
-              next unless v.present?
               next if v.blank?
               case k
               when :connection_description
@@ -148,12 +134,8 @@ module Searchable
   def to_indexed_json
     # customize what data is sent to ES for indexing
     to_json(
-      methods: [:tag_values],
+      methods: [:tag_values, :submission_values],
       include: {
-        submissions: {
-          only:  [:submission_values],
-          methods: [:submission_values]
-        },
         comments: {
           only: [:content]
         },

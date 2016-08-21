@@ -35,7 +35,12 @@ RSpec.configure do |config|
 
   config.infer_spec_type_from_file_location!
 
+  config.include Devise::TestHelpers, type: :controller
+  config.include Devise::TestHelpers, type: :view
+
   config.filter_rails_from_backtrace!
+
+  config.example_status_persistence_file_path = "#{::Rails.root}/tmp/rspec.data"
 
   config.use_transactional_fixtures = false
 

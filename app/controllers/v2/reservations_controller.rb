@@ -12,10 +12,9 @@ class V2::ReservationsController < ApplicationController
   skip_before_action :authenticate_user!
 
   def new
-    event = V2::Event.find(event_params[:event_id])
+    event = V2::Event.find_by(id: event_params[:event_id])
     @person = Person.find_by(token: person_params[:token])
-    all_slots = event.available_time_slots
-    @available_time_slots = filter_reservations([@person, event.user], all_slots)
+    @available_time_slots = event.available_time_slots(@person)
     @reservation = V2::Reservation.new(time_slot: V2::TimeSlot.new)
   end
 
@@ -58,14 +57,14 @@ class V2::ReservationsController < ApplicationController
     end
 
     def filter_reservations(arr_obj, slots)
-      arr_obj.each do|obj|
+      arr_obj.each do |obj|
         slots = filter_obj_reservations(obj, slots)
       end
       slots
     end
 
     def filter_obj_reservations(obj, slots)
-      if slots.length > 0
+      unless slots.empty?
         res = obj.v2_reservations.joins(:time_slot).
               where('v2_time_slots.start_time >=?',
                 DateTime.now.in_time_zone)
@@ -74,7 +73,7 @@ class V2::ReservationsController < ApplicationController
         # filtering out slots that overlap. Tricky.
         slots = slots.select do |s|
           res.any? { |r| not_overlaps(r, s) }
-        end if res.length > 0
+        end unless res.empty?
       end
       slots
     end
