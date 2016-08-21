@@ -12,21 +12,24 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require fastclick/fastclick
 //= require best_in_place
 //= require twitter/bootstrap
 //= require twitter/typeahead.min
 //= require turbolinks
 //= require holder
 //= require datepicker/bootstrap-datepicker.min
-//= require tokenfield/bootstrap-tokenfield.min
+//= require tokenfield/bootstrap-tokenfield.js
 //= require jquery.validate
 //= require jquery.validate.additional-methods
 //= require moment/moment.min
 //= require fullcalendar/fullcalendar.min
+//= require jquery-touchswipe/jquery.touchSwipe.min
 //= require_tree .
 //= require maskedinput
 
 $(document).on('ready page:load',function() {
+  FastClick.attach(document.body);
   /* Activating Best In Place */
   jQuery(".best_in_place").best_in_place();
 

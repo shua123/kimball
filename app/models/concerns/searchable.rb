@@ -79,6 +79,7 @@ module Searchable
     #
     def complex_search(params, per_page)
       options = {}
+
       options[:per_page] = per_page
       options[:page]     = params[:page] || 1
 
@@ -99,8 +100,11 @@ module Searchable
         query do
           boolean do
             params.each do |k, v|
-              next if v.blank?
-              case k
+              # all of this is a bit bananas.
+              # looking forard to new elastic search gem
+              next if v.blank? || v == '*' || k == :adv
+
+              case k.to_sym
               when :connection_description
                 must { string "primary_connection_description:#{v} OR secondary_connection_description:#{v}" }
               when :device_description

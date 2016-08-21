@@ -61,12 +61,12 @@ Vagrant.configure(2) do |config|
   #
 
   config.vm.provider "virtualbox" do |vb, override|
-  # Don't display the VirtualBox GUI when booting the machine
+    # Don't display the VirtualBox GUI when booting the machine
     vb.gui = false
 
-  # linked clones, they are speedy
+    # linked clones, they are speedy
     vb.linked_clone = true if Vagrant::VERSION =~ /^1.8/
-  # Customize the amount of memory on the VM:
+    # Customize the amount of memory on the VM:
     vb.memory = '2048'
     vb.cpus = '2'
 
@@ -124,6 +124,7 @@ Vagrant.configure(2) do |config|
   ]
 
   config.vm.provision :shell, privileged: false, inline: %[
+    echo 'gem: --no-rdoc --no-ri' | sudo tee /etc/gemrc;
     # rvm install is idempotent
     curl -sSL https://rvm.io/mpapis.asc | gpg --import -
     curl -sSL https://get.rvm.io | bash -s stable --auto-dotfiles

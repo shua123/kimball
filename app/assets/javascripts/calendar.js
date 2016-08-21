@@ -35,7 +35,8 @@ $(document).on('ready page:load', function () {
 
   // simple mobile detection
   var isMobile = window.matchMedia("only screen and (max-width: 760px)");
-
+  var buttons = '';
+  if (token_param !== '') { buttons = ' event_slots,reservations'; }
   $('#calendar').fullCalendar({
     customButtons: {
         event_slots: {
@@ -52,9 +53,9 @@ $(document).on('ready page:load', function () {
         }
     },
     header: {
-      left: 'prev,next today',
-      center: 'title event_slots,reservations',
-      right: 'month,agendaWeek,agendaDay'
+      right: 'prev,next today',
+      center: 'title' + buttons,
+      left: 'month,agendaWeek,agendaDay'
     },
     eventClick:  function(event, jsEvent, view) {
       // https://coderwall.com/p/kqb3xq/rails-4-how-to-partials-ajax-dead-easy
@@ -93,6 +94,7 @@ $(document).on('ready page:load', function () {
     defaultDate: defaultDate,
     //eventLimit: true, // allow "more" link when too many events
     editable: false,
+    nowIndicator: true,
     businessHours:{
       start:'9:00',
       end: '20:00'
@@ -111,6 +113,29 @@ $(document).on('ready page:load', function () {
   }
 
 
+  if (isMobile.matches) {
+    $("#calendar").swipe( {
+      tap:function(event, target) {
+
+          msg(target);
+      },
+      doubleTap:function(event, target) {
+
+          msg(target);
+      },
+      longTap:function(event, target) {
+
+          msg(target);
+      },
+      swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
+        if (direction == 'left') { $('#calendar').fullCalendar('prev'); }
+        if (direction == 'right') { $('#calendar').fullCalendar('next'); }
+      },
+      threshold:50,
+      fingers:'all',
+      allowPageScroll:"vertical"
+    });
+  }
 
 
 });

@@ -33,6 +33,11 @@ Logan::Application.routes.draw do
     resources :sms_reservations, only: [:create]
   end
 
+  # simple session based cart for storing people ids.
+  get 'v2/cart', to: 'v2/cart#index', as: :show_cart
+  get 'v2/cart/add/:person_id', to: 'v2/cart#add', as: :add_cart
+  get 'v2/cart/delete(/:person_id(/:all))', to: 'v2/cart#delete', as: :delete_cart
+
   get 'registration', to: 'public/people#new'
 
   resources :twilio_wufoos
@@ -122,6 +127,7 @@ Logan::Application.routes.draw do
     resources :gift_cards
   end
   # post "people/create_sms"
+
 
   root to: 'dashboard#index'
 
