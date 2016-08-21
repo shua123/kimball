@@ -1,9 +1,11 @@
 $(document).on('ready page:load', function () {
 
-
   // users won't have a token.
   var token_param = '';
   if (typeof(token) != "undefined") { token_param = "?token="+ token; }
+  // this is to be able to change to the right date on the calendar.
+  // also timecop
+  if (typeof(defaultDate) === "undefined") { defaultDate = moment(); }
 
   var event_sources = {
     reservations: {
@@ -40,13 +42,12 @@ $(document).on('ready page:load', function () {
             text: 'invitations',
             click: function() {
               toggle_event_source('event_slots');
-
             }
         },
         reservations: {
             text: 'reservations',
             click: function() {
-                toggle_event_source('reservations');
+              toggle_event_source('reservations');
             }
         }
     },
@@ -56,34 +57,40 @@ $(document).on('ready page:load', function () {
       right: 'month,agendaWeek,agendaDay'
     },
     eventClick:  function(event, jsEvent, view) {
-      if (event.type === 'TimeSlot') {
-        $('#modalTitle').html(event.title);
-        $('#modalBody').html(event.description);
-        $('#modalTime').html(event.time_and_date);
-        $('#eventUrl').attr('href',event.url);
-        $('#v2_reservation_person_id').val(event.person_id);
-        $('#v2_reservation_user_id').val(event.user_id);
-        $('#v2_reservation_event_id').val(event.event_id);
-        $('#v2_reservation_event_invitation_id').val(event.event_invitation_id);
-        $('#v2_reservation_time_slot_id').val(event.time_slot_id);
-        $('#invitationModal').modal();
-      } else if (event.type === 'Reservation'){
-        $('#resTitle').html(event.title);
-        $('#resBody').html(event.description);
-        $('#resTime').html(event.time_and_date);
-        $('#reservationModal').modal();
-      }
-
-
+      // https://coderwall.com/p/kqb3xq/rails-4-how-to-partials-ajax-dead-easy
+      // and
+      // https://coderwall.com/p/ej0mhg/open-a-rails-form-with-twitter-bootstrap-modals
+      $.getScript(event.modal_url);
     },
     eventRender: function(event, element){
-      if(event.source.rendering == 'background'){
-        element.append(event.title);
+      if(event.rendering == 'background'){
+        element.append('<div class="fc-title">' + event.title + '</div>');
+      }
+
+      if (event.type === 'Reservation') {
+        var icon = '';
+        switch(event.status){
+          case 'Unconfirmed':
+            icon = 'icon-question';
+            break;
+          case 'Confirmed':
+            icon = 'icon-check';
+            break;
+          case 'Rescheduling':
+            icon = 'icon-random';
+            break;
+          case 'Cancelled':
+            icon = 'icon-times'
+            break;
+          default:
+            icon = 'icon-calendar'
+        }
+        element.find('.fc-time').append('<span class="'+ icon +' pull-right icon-border icon-large" style="margin:1px; background:blue" aria-hidden="true"></span>');
       }
     },
     defaultView: isMobile.matches ? 'agendaDay' : 'agendaWeek',
     aspectRatio: isMobile.matches ? 0.7 : 1.35 ,
-    defaultDate: moment( new Date().toJSON().slice(0, 10) ),
+    defaultDate: defaultDate,
     //eventLimit: true, // allow "more" link when too many events
     editable: false,
     businessHours:{
@@ -104,16 +111,6 @@ $(document).on('ready page:load', function () {
   }
 
 
-  $('#submitButton').on('click', function(e){
-    // We don't want this to act as a link so cancel the link action
-    e.preventDefault();
-    doSubmit();
-  });
 
-  function doSubmit(){
-    $.post('/v2/reservations', $('#new_v2_reservation').serialize());
-    $("#calendar").fullCalendar( 'refetchEvents' );
-    $("#calendarModal").modal('hide');
-  }
 
 });

@@ -39,3 +39,6 @@ Procfile
 
 # simplecov
 /coverage
+
+# screenshots
+screenshot*

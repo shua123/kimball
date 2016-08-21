@@ -9,10 +9,26 @@ Logan::Application.routes.draw do
     resources :event_invitations
     resources :reservations do
       collection do
-        post 'confirm'
-        post 'cancel'
-        post 'reschedule'
+        post ':id/confirm/(:token)',
+              to: 'reservations#confirm',
+              as: :confirm
+        post ':id/cancel/(:token)',
+              to: 'reservations#cancel',
+              as: :cancel
+        post ':id/change/(:token)',
+              to: 'reservations#change',
+              as: :change
+        get ':id/confirm/(:token)',
+              to: 'reservations#confirm',
+              as: :remote_confirm
+        get ':id/cancel/(:token)',
+              to: 'reservations#cancel',
+              as: :remote_cancel
+        get ':id/change/(:token)',
+              to: 'reservations#change',
+              as: :remote_change
       end
+      resources :comments, controller: '/comments'
     end
     resources :sms_reservations, only: [:create]
   end
@@ -70,6 +86,26 @@ Logan::Application.routes.draw do
 
   get '/calendar/(:id)', to: 'calendar#show', as: :calendar
   get '/calendar/(:token)/feed/', to: 'calendar#feed', defaults: { format: 'ics' }
+  get '/calendar/show_actions/:id/(:token)',
+      to: 'calendar#show_actions',
+      defaults: { format: 'js' },
+      as: :calendar_show_actions
+
+  get '/calendar/show_reservation/:id/(:token)',
+      to: 'calendar#show_reservation',
+      defaults: { format: 'js' },
+      as: :calendar_show_reservation
+
+  get '/calendar/show_invitation/:id/(:token)',
+      to: 'calendar#show_invitation',
+      defaults: { format: 'js' },
+      as: :calendar_show_invitation
+
+  get '/calendar/show_event/:id/(:token)',
+      to: 'calendar#show_event',
+      defaults: { format: 'js' },
+      as: :calendar_show_event
+
 
 
   get  'search/index'

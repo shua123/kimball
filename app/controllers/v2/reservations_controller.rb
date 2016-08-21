@@ -22,7 +22,10 @@ class V2::ReservationsController < ApplicationController
                                                      :destroy,
                                                      :confirm,
                                                      :cancel,
-                                                     :reschedule]
+                                                     :change,
+                                                     :show_actions,
+                                                     :show_reservation,
+                                                     :show_invitation]
   # need a before action here for authentication of reservation changes
   def new
     @person = Person.find_by(token: person_params[:token])
@@ -62,6 +65,7 @@ class V2::ReservationsController < ApplicationController
   end
 
   def show
+    @comment = Comment.new commentable: @reservation
   end
 
   def edit
@@ -69,15 +73,43 @@ class V2::ReservationsController < ApplicationController
 
   # these are our methods to
   def confirm
-    @reservation.confirm
+    if @reservation.confirm
+      flash[:notice] = "You are confirmed for #{@reservation.to_weekday_and_time}, with #{@reservation.user.name}."
+      @reservation.save
+    else
+      flash[:alert] = 'Error'
+    end
+
+    respond_to do |format|
+      format.html { redirect_to calendar_path(token: @visitor.token, reservation_id: @reservation.id) }
+      format.js { render text: "$('#reservationModal').modal('hide'); $('#calendar').fullCalendar( 'refetchEvents' );" }
+    end
   end
 
   def cancel
-    @reservation.cancel
+    if @reservation.cancel
+      flash[:notice] = 'Cancelled'
+      @reservation.save
+    else
+      flash[:alert] = 'Error'
+    end
+    respond_to do |format|
+      format.html { redirect_to calendar_path(token: @visitor.token, reservation_id: @reservation.id) }
+      format.js { render text: "$('#reservationModal').modal('hide'); $('#calendar').fullCalendar( 'refetchEvents' );" }
+    end
   end
 
-  def reschedule
-    @reservation.reschedule
+  def change
+    if @reservation.reschedule
+      flash[:notice] = "#{@reservation.user.name} will be in touch soon to find a different time."
+      @reservation.save
+    else
+      flash[:alert] = 'Error'
+    end
+    respond_to do |format|
+      format.html { redirect_to calendar_path(token: @visitor.token, reservation_id: @reservation.id) }
+      format.js { render text: "$('#reservationModal').modal('hide'); $('#calendar').fullCalendar( 'refetchEvents' );" }
+    end
   end
 
   def update
@@ -91,7 +123,6 @@ class V2::ReservationsController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to(:back) }
-      format.json {}
     end
   end
 
@@ -106,16 +137,22 @@ class V2::ReservationsController < ApplicationController
   private
 
     def set_reservation_and_visitor
-      @visitor = nil
-      unless allowed_params[:token].blank?
-        @visitor = Person.find_by(token: params[:token])
+      unless params[:token].blank?
+        @person = Person.find_by(token: params[:token])
         # if we don't have a person, see if we have a user's token.
         # thus we can provide a feed without auth1
-        @visitor = current_user if @visitor.nil? && current_user
+        visitor
       end
-      @reservation = V2::Reservation.find_by(params[:id])
-      return false unless @reservation.owner?(@visitor)
-      @person.nil? ? false : true
+
+      @reservation = V2::Reservation.find_by(id: params[:id])
+      unless @reservation && @reservation.owner_or_invitee?(@visitor)
+        return false
+      end
+      @visitor.nil? ? false : true
+    end
+
+    def visitor
+      @visitor ||= @person ? @person : current_user
     end
 
     def send_notifications(reservation)

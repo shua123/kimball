@@ -1,6 +1,6 @@
 require 'capybara/poltergeist'
 require 'capybara-screenshot/rspec'
-Capybara.register_driver :poltergeist_debug do |app|
+Capybara.register_driver :poltergeist do |app|
   options = {
     timeout: 30,
     inspector: true,
@@ -17,7 +17,8 @@ Capybara.register_driver :poltergeist_debug do |app|
   Capybara::Poltergeist::Driver.new(app, options)
 end
 
-Capybara.javascript_driver = :poltergeist_debug
+Capybara.register_server :puma
+Capybara.javascript_driver = :poltergeist
 
 # rubocop:disable all
 class ActiveRecord::Base

@@ -48,7 +48,7 @@ Environment variables live here: [/config/local_env.yml](/config/local_env.yaml)
 
 local_env.yml, which should not be committed, and should store your API credentials, etc.
 
-If a variable isn't defined in your local_env.yml,  we use the default from sample.local_env.yml, which is checked into the respository.
+If a variable isn't defined in your local_env.yml, we use the default value from sample.local_env.yml, which is checked into the respository.
 
 * Organizational Defaults
 
@@ -75,12 +75,12 @@ If a variable isn't defined in your local_env.yml,  we use the default from samp
   * On the Server Side there are several environment variables used:
     * TWILIO_ACCOUNT_SID
     * TWILIO_AUTH_TOKEN
-    * TWILIO_SMS_SIGNUP_NUMBER
-      - /receive_text/index #POST
-    * TWILIO_SIGNUP_VERIFICATION_NUMBER
+    * TWILIO_SURVEY_NUMBER
       - /receive_text/smssignup #POST
-    * TWILIO_SCHEDULING_NUMBER #POST
-      - /v2/sms_reservations
+    * TWILIO_SIGNUP_VERIFICATION_NUMBER
+      - /receive_text/index #POST
+    * TWILIO_SCHEDULING_NUMBER
+      - /v2/sms_reservations  #POST
 
 * Mailchimp:
   * Mailchimp is used to send emails.

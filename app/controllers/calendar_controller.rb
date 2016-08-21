@@ -1,10 +1,15 @@
+# FIXME: Refactor and re-enable cop
+# rubocop:disable ClassLength
 class CalendarController < ApplicationController
+  # this is so that people can also visit the calendar.
+  # identified by their secure token.
   skip_before_action :authenticate_user!, if: :person?
 
   include ActionController::MimeResponds
 
-  def index
-    @reservation = V2::Reservation.new
+  def show
+    @default_date = default_time
+    @show_modal = modal_to_load
     redirect_to root_url unless visitor
   end
 
@@ -39,7 +44,7 @@ class CalendarController < ApplicationController
                event_invitations.
                includes(event: :time_slots).
                where('date BETWEEN ? AND ?', cal_params[:start], cal_params[:end]).
-               map(&:event)
+               map(&:event).compact
       slots = []
       events.each do|e|
         if visitor.class.to_s == 'Person'
@@ -64,6 +69,42 @@ class CalendarController < ApplicationController
               where('v2_event_invitations.date BETWEEN ? AND ?', cal_params[:start], cal_params[:end])
   end
 
+  def show_actions
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def show_reservation
+    visitor
+    @reservation = V2::Reservation.find_by(id: allowed_params[:id])
+    respond_to do |format|
+      if @reservation.owner_or_invitee?(@visitor)
+        format.js {}
+      else
+        flash[:error] = 'invalid option'
+        format.js { render json: {}, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def show_invitation
+    visitor
+    @reservation = V2::Reservation.new
+    @time_slot = V2::TimeSlot.find_by(id: allowed_params[:id])
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def show_event
+    visitor
+    @event = V2::Event.find_by(id: allowed_params[:id])
+    respond_to do |format|
+      format.js
+    end
+  end
+
   private
 
     # this does the token based auth for users and persons
@@ -75,7 +116,7 @@ class CalendarController < ApplicationController
         # thus we can provide a feed without auth1
         @person = User.find_by(token: allowed_params[:token]) if @person.nil?
       elsif !allowed_params[:id].blank?
-        @person = Person.find_by(allowed_params[:id])
+        @person = Person.find_by(id: allowed_params[:id])
       end
       @person.nil? ? false : true
     end
@@ -86,7 +127,49 @@ class CalendarController < ApplicationController
     end
 
     def allowed_params
-      params.permit(:token, :id, :event_id, :user_id, :type)
+      params.permit(:token,
+        :id,
+        :event_id,
+        :user_id,
+        :type,
+        :reservation_id,
+        :time_slot_id,
+        :default_time)
+    end
+
+    def event
+      if allowed_params['event_id']
+        @event ||= V2::Event.find_by(id: allowed_params['event_id'])
+      end
+    end
+
+    def reservation
+      if allowed_params['reservation_id']
+        @reservation ||= V2::Reservation.find_by(id: allowed_params['reservation_id'])
+      end
+    end
+
+    def time_slot
+      if allowed_params['time_slot_id']
+        @time_slot ||= V2::TimeSlot.find_by(id: allowed_params['time_slot_id'])
+      end
+    end
+
+    def default_time
+      return reservation.start_datetime.strftime('%F') if reservation
+      return time_slot.start_datetime.strftime('%F') if time_slot
+      return event.start_datetime.strftime('%F') if event
+      if allowed_params['default_time']
+        return Time.zone.parse(allowed_params['default_time']).strftime('%F')
+      end
+      Time.current.strftime('%F')
+    end
+
+    def modal_to_load
+      return 'reservation' if reservation
+      return 'time_slot' if time_slot
+      return 'event' if event
+      false
     end
 
     def cal_params
@@ -103,3 +186,4 @@ class CalendarController < ApplicationController
       end
     end
 end
+# rubocop:enable ClassLength

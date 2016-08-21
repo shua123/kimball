@@ -41,6 +41,7 @@ before  'deploy:finalize_update', "deploy:create_shared_directories", 'deploy:li
 
 after   'deploy:finalize_update', 'deploy:create_binstubs', 'deploy:migrate', 'deploy:generate_delayed_job','deploy:reload_nginx'
 
+
 namespace :deploy do
   task :start do
     run "cd #{current_path} && `./bin/unicorn_rails -c config/unicorn.rb -E #{rails_env.to_s.shellescape} -D`"
@@ -61,6 +62,10 @@ namespace :deploy do
     run "mkdir -p #{deploy_to}/shared/assets"
     run "mkdir -p #{deploy_to}/releases"
     run "mkdir -p #{shared_path}/log"
+    run "mkdir -p #{shared_path}/tmp"
+    run "mkdir -p #{shared_path}/assets"
+    run "mkdir -p #{shared_path}/bundle"
+    run "mkdir -p #{shared_path}/cached-copy"
   end
 
   task :link_db_config do
@@ -74,7 +79,8 @@ namespace :deploy do
   end
 
   task :reload_nginx do
-    run "service nginx reload"
+    # i don't like this sudo here.
+    run "sudo service nginx restart"
   end
 
   # https://github.com/capistrano/capistrano/issues/362#issuecomment-14158487
